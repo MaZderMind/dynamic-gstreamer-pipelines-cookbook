@@ -1,0 +1,5 @@
+coloredlogs==10.0
+humanfriendly==4.18
+ruamel.yaml==0.15.94
+vext==0.7.3
+vext.gi==0.7.0
