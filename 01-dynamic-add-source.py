@@ -34,6 +34,16 @@ The most important Lines have been marked as such:
 
      Try to comment this line out and look at the Console-Output around the 0:00:02 seconds mark
 
+ (3) Furthermore it is important that all other Sources in the Pipeline are also in Live-Mode, here this is ensured
+     by settinf the is-live property of testsrc1. If one or all of the Sources in the Pipeline are not live, they will
+     produce as many buffers as the sink allows them to. In a pipeline like the following, where neither source nor
+     sink enforce live-behaviour, the timestamp the audiomixer is working with might be way ahead of those produced by
+     your newly added live-source: `audiotestsrc ! audiomixer ! wavenc ! filesink …"
+
+     If you are dealing with sources that do not support live behaviour, for example a `filesrc`, you should place an
+     `identity`-Element with the `sync`-Property set to True right after it, so that it behaves like a live-source to
+     downstream elements like audiomixers.
+
  (3) An Element does not automatically take over its parent state. Also, not all Elements in a Pipeline have to have the
      same state. In this case the new audiotestsrc-Element starts in NULL state and is added as such to the Pipeline.
      Once it is added, its state is synced to the pipeline (PLAYING) which makes it switch from NULL through
@@ -58,8 +68,8 @@ log.info("building pipeline")
 pipeline = Gst.Pipeline.new()
 caps = Gst.Caps.from_string("audio/x-raw,format=S16LE,rate=48000,channels=2")
 
-testsrc1 = Gst.ElementFactory.make("audiotestsrc")
-testsrc1.set_property("is-live", True)
+testsrc1 = Gst.ElementFactory.make("audiotestsrc", "testsrc1")
+testsrc1.set_property("is-live", True)  # (3)
 testsrc1.set_property("freq", 220)
 pipeline.add(testsrc1)
 
@@ -84,7 +94,7 @@ def timed_sequence():
 
     def add_new_src():
         log.info("Adding testsrc2")
-        testsrc2 = Gst.ElementFactory.make("audiotestsrc")
+        testsrc2 = Gst.ElementFactory.make("audiotestsrc", "testsrc2")
         testsrc2.set_property("freq", 440)
         testsrc2.set_property("is-live", True)  # (2)
 
@@ -93,7 +103,7 @@ def timed_sequence():
 
         pipeline.add(testsrc2)
         testsrc2.link_filtered(mixer, caps)
-        testsrc2.sync_state_with_parent()  # (3)
+        testsrc2.sync_state_with_parent()  # (4)
         log.info("Adding testsrc2 done")
 
     GLib.idle_add(add_new_src)  # (1)
