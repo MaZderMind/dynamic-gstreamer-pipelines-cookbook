@@ -28,7 +28,7 @@ testsrc1.link_filtered(mixer, caps)
 
 sink = Gst.ElementFactory.make("autoaudiosink")
 pipeline.add(sink)
-mixer.link(sink)
+mixer.link_filtered(sink, caps)
 
 testsrc1.get_static_pad("src").add_probe(
     Gst.PadProbeType.BUFFER, logging_pad_probe, "testsrc1-output")
