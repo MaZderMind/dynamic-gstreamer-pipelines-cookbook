@@ -26,7 +26,7 @@ mixer = Gst.ElementFactory.make("audiomixer")
 pipeline.add(mixer)
 testsrc1.link_filtered(mixer, caps)
 
-sink = Gst.ElementFactory.make("alsasink")
+sink = Gst.ElementFactory.make("autoaudiosink")
 pipeline.add(sink)
 mixer.link(sink)
 
