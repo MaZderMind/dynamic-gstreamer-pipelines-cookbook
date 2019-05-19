@@ -56,6 +56,7 @@ def timed_sequence():
     log.info("Starting Sequence")
     time.sleep(2)
     GLib.idle_add(add_new_src)  # (1)
+    log.info("Sequence ended")
 
 
 t = Thread(target=timed_sequence, name="Sequence")
