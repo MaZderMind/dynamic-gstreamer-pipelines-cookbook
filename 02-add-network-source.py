@@ -15,12 +15,12 @@ log = logging.getLogger("main")
 
 log.info("building pipeline")
 pipeline = Gst.Pipeline.new()
-caps_audio = Gst.Caps.from_string("audio/x-raw,format=S16LE,rate=48000,channels=2")
+caps_audio = Gst.Caps.from_string("audio/x-raw,format=S16LE,rate=48000,channels=2")  # (10)
 caps_audio_be = Gst.Caps.from_string("audio/x-raw,format=S16BE,rate=48000,channels=2")
 caps_rtp = Gst.Caps.from_string("application/x-rtp,clock-rate=48000,media=audio,encoding-name=L16,channels=2")
 
 testsrc = Gst.ElementFactory.make("audiotestsrc", "testsrc")
-testsrc.set_property("is-live", True)
+testsrc.set_property("is-live", True)  # (2)
 testsrc.set_property("freq", 220)
 pipeline.add(testsrc)
 
@@ -42,28 +42,28 @@ mixer.get_static_pad("src").add_probe(
 # udpsrc port=… ! {rtpcaps} ! rtpjitterbuffer latency=… ! rtpL16depay ! {rawcaps_be} ! audioconvert ! {rawcaps} ! …
 def create_bin(port):
     log.info("Creating RTP-Bin for Port %d" % port)
-    bin = Gst.Bin.new("rx-bin-%d" % port)
+    bin = Gst.Bin.new("rx-bin-%d" % port)  # (7)
 
-    udpsrc = Gst.ElementFactory.make("udpsrc")
+    udpsrc = Gst.ElementFactory.make("udpsrc")  # (3)
     udpsrc.set_property("port", port)
     bin.add(udpsrc)
 
     udpsrc.get_static_pad("src").add_probe(
         Gst.PadProbeType.BUFFER, logging_pad_probe, "udpsrc-%d-output" % port)
 
-    jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")
+    jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")  # (4)
     jitterbuffer.set_property("latency", 100)
     bin.add(jitterbuffer)
     udpsrc.link_filtered(jitterbuffer, caps_rtp)
 
-    depayload = Gst.ElementFactory.make("rtpL16depay")
+    depayload = Gst.ElementFactory.make("rtpL16depay")  # (5)
     bin.add(depayload)
-    jitterbuffer.link_filtered(depayload, caps_rtp)
+    jitterbuffer.link(depayload)
 
     depayload.get_static_pad("src").add_probe(
         Gst.PadProbeType.BUFFER, logging_pad_probe, "depayload-%d-output" % port)
 
-    audioconvert = Gst.ElementFactory.make("audioconvert", "out-%d" % port)
+    audioconvert = Gst.ElementFactory.make("audioconvert", "out-%d" % port)  # (6)
     bin.add(audioconvert)
     depayload.link_filtered(audioconvert, caps_audio_be)
 
@@ -75,20 +75,21 @@ def add_bin(port):
 
     log.info("Adding RTP-Bin for Port %d to the Pipeline" % port)
     pipeline.add(bin)
-    output_element = pipeline.get_by_name("out-%d" % port)
+    output_element = pipeline.get_by_name("out-%d" % port)  # (8)
     output_element.link_filtered(mixer, caps_audio)
-    bin.sync_state_with_parent()
+    bin.sync_state_with_parent()  # (9)
     log.info("Added RTP-Bin for Port %d to the Pipeline" % port)
 
 
 def timed_sequence():
     log.info("Starting Sequence")
     time.sleep(2)
-    GLib.idle_add(add_bin, 10000)
+    GLib.idle_add(add_bin, 10000)  # (1)
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "02-add-network-source")
-    # time.sleep(2)
-    # GLib.idle_add(add_bin, 10001)
-    # Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "02-add-network-source")
+    time.sleep(2)
+    GLib.idle_add(add_bin, 10001)  # (1)
+    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "02-add-network-source")
+    log.info("Sequence ended")
 
 
 t = Thread(target=timed_sequence, name="Sequence")

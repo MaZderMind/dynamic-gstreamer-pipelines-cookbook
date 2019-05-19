@@ -37,24 +37,24 @@ mixer.get_static_pad("src").add_probe(
     Gst.PadProbeType.BUFFER, logging_pad_probe, "mixer-output")
 
 
+def add_new_src():
+    log.info("Adding testsrc2")
+    testsrc2 = Gst.ElementFactory.make("audiotestsrc", "testsrc2")
+    testsrc2.set_property("freq", 440)
+    testsrc2.set_property("is-live", True)  # (2)
+
+    testsrc2.get_static_pad("src").add_probe(
+        Gst.PadProbeType.BUFFER, logging_pad_probe, "testsrc2-output")
+
+    pipeline.add(testsrc2)
+    testsrc2.link_filtered(mixer, caps)
+    testsrc2.sync_state_with_parent()  # (4)
+    log.info("Adding testsrc2 done")
+
+
 def timed_sequence():
     log.info("Starting Sequence")
     time.sleep(2)
-
-    def add_new_src():
-        log.info("Adding testsrc2")
-        testsrc2 = Gst.ElementFactory.make("audiotestsrc", "testsrc2")
-        testsrc2.set_property("freq", 440)
-        testsrc2.set_property("is-live", True)  # (2)
-
-        testsrc2.get_static_pad("src").add_probe(
-            Gst.PadProbeType.BUFFER, logging_pad_probe, "testsrc2-output")
-
-        pipeline.add(testsrc2)
-        testsrc2.link_filtered(mixer, caps)
-        testsrc2.sync_state_with_parent()  # (4)
-        log.info("Adding testsrc2 done")
-
     GLib.idle_add(add_new_src)  # (1)
 
 
