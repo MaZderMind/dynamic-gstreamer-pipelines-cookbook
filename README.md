@@ -21,7 +21,16 @@ reproducible Examples for the most 4 most common Modifications: Adding and Remov
 
 ## Adding a Source
 This Example creates a Pipeline with an `audiotestsrc` and an `audiomixer`. After a while a second `audiotestsrc` is
-created, added to the Pipeline and linked to the Audiomixer.
+created, added to the Pipeline and linked to the `audiomixer`.
 
  - [Recipe](01-add-source.md)
  - [Sourcecode](01-add-source.py)
+
+## Adding an RTP-Source
+As a more realistic example of adding Sources to a playing Pipeline, this Example creates a Pipeline with an
+`audiotestsrc` and an `audiomixer`. After a while, a Bin (Cluster of Elements) which receive and decode Audio coming
+from the Network via UDP is created, added to the Pipeline and linked to the `audiomixer`. Some time later another such
+Bin is created and also linked.
+
+ - [Recipe](02-add-network-source.md)
+ - [Sourcecode](02-add-network-source.py)
