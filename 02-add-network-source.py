@@ -21,10 +21,12 @@ caps_rtp = Gst.Caps.from_string("application/x-rtp,clock-rate=48000,media=audio,
 
 testsrc = Gst.ElementFactory.make("audiotestsrc", "testsrc")
 testsrc.set_property("is-live", True)  # (2)
-testsrc.set_property("freq", 220)
+testsrc.set_property("freq", 110)
+testsrc.set_property("volume", 0.2)
 pipeline.add(testsrc)
 
 mixer = Gst.ElementFactory.make("audiomixer")
+mixer.set_property("latency", 75 * 1_000_000)  # (5)
 pipeline.add(mixer)
 testsrc.link_filtered(mixer, caps_audio)
 
@@ -52,7 +54,7 @@ def create_bin(port):
         Gst.PadProbeType.BUFFER, logging_pad_probe, "udpsrc-%d-output" % port)
 
     jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")  # (4)
-    jitterbuffer.set_property("latency", 100)
+    jitterbuffer.set_property("latency", 50)
     bin.add(jitterbuffer)
     udpsrc.link_filtered(jitterbuffer, caps_rtp)
 
@@ -83,12 +85,16 @@ def add_bin(port):
 
 def timed_sequence():
     log.info("Starting Sequence")
+
     time.sleep(2)
     GLib.idle_add(add_bin, 10000)  # (1)
-    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "02-add-network-source")
+
     time.sleep(2)
     GLib.idle_add(add_bin, 10001)  # (1)
-    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "02-add-network-source")
+
+    time.sleep(2)
+    GLib.idle_add(add_bin, 10002)  # (1)
+
     log.info("Sequence ended")
 
 
