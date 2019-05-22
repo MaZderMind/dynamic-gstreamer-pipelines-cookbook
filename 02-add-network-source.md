@@ -5,10 +5,13 @@ gst-launch-1.0 audiotestsrc freq=440 is-live=true ! audio/x-raw,format=S16BE,rat
 1. schedule on main-thread
 2. all existing sources are live
 3. udp-src is always live (ref doc)
-4. lan vs. wlan vs. internet, jitter, ordering and gaps
-5. de-payload
-6. be/le
-7. bin
-8. link inside bin
-9. state
-10. linking with caps
+4. lan vs. wlan vs. internet, jitter, ordering and gaps -- latency
+   - 10ms Wifi
+5. additional latency on the mixer
+   - +5ms? +2ms? +1ms?
+6. de-payload
+7. be/le
+8. bin
+9. link inside bin
+10. state
+11. linking with caps
