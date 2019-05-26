@@ -3,6 +3,8 @@ import logging
 import time
 from threading import Thread
 
+rtp_max_jitter_mx = 30
+
 from tools.application_init import application_init
 
 application_init()
@@ -22,11 +24,11 @@ caps_rtp = Gst.Caps.from_string("application/x-rtp,clock-rate=48000,media=audio,
 testsrc = Gst.ElementFactory.make("audiotestsrc", "testsrc")
 testsrc.set_property("is-live", True)  # (2)
 testsrc.set_property("freq", 110)
-testsrc.set_property("volume", 0.2)
+testsrc.set_property("volume", 0.5)
 pipeline.add(testsrc)
 
 mixer = Gst.ElementFactory.make("audiomixer")
-mixer.set_property("latency", 15 * 1_000_000)  # (5)
+mixer.set_property("latency", (rtp_max_jitter_mx * 1_000_000))  # (5)
 pipeline.add(mixer)
 testsrc.link_filtered(mixer, caps_audio)
 
@@ -54,7 +56,8 @@ def create_bin(port):
         Gst.PadProbeType.BUFFER, logging_pad_probe, "udpsrc-%d-output" % port)
 
     jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")  # (4)
-    jitterbuffer.set_property("latency", 10)
+    jitterbuffer.set_property("latency", rtp_max_jitter_mx)
+    jitterbuffer.set_property("drop-on-latency", True)
     bin.add(jitterbuffer)
     udpsrc.link_filtered(jitterbuffer, caps_rtp)
 
@@ -87,12 +90,15 @@ def timed_sequence():
     log.info("Starting Sequence")
 
     time.sleep(2)
+    log.info("Scheduling adding a Bin for Port 10000")
     GLib.idle_add(add_bin, 10000)  # (1)
 
     time.sleep(2)
+    log.info("Scheduling adding a Bin for Port 10001")
     GLib.idle_add(add_bin, 10001)  # (1)
 
     time.sleep(2)
+    log.info("Scheduling adding a Bin for Port 10002")
     GLib.idle_add(add_bin, 10002)  # (1)
 
     log.info("Sequence ended")

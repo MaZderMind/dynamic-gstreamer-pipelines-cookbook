@@ -4,7 +4,7 @@
 This Example creates a Pipeline like this:
 
 ```
-  audiotestsrc ! audiomixer ! alsasink
+  audiotestsrc is-live=true ! audiomixer ! autoaudiosink
 ```
 
 It installs Pad-Probes after the audiotestsrc and the audiomixer, which log the PTS-Timestamps of the Buffers flowing 
