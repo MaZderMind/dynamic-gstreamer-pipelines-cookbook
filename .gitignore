@@ -107,3 +107,6 @@ venv.bak/
 
 # PyCharm project folders
 /.idea
+
+# Dot-Files
+*.dot

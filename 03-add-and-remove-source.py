@@ -91,13 +91,13 @@ def remove_src():
     log.info("Stopping capsfilter2")
     log.debug(capsfilter2.set_state(Gst.State.NULL))
 
-    log.info("removing testsrc2")
+    log.info("Removing testsrc2")
     log.debug(pipeline.remove(testsrc2))
 
-    log.info("removing capsfilter2")
+    log.info("Removing capsfilter2")
     log.debug(pipeline.remove(capsfilter2))
 
-    log.info("releasing mixerpad")
+    log.info("Releasing mixerpad")
     log.debug(mixer.release_request_pad(mixerpad))
 
     log.info("Removing testsrc2 done")
