@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import logging
-import time
-from threading import Thread
+from threading import Thread, Event
 
 rtp_max_jitter_mx = 30
 
@@ -86,18 +85,21 @@ def add_bin(port):
     log.info("Added RTP-Bin for Port %d to the Pipeline" % port)
 
 
+stop_event = Event()
+
+
 def timed_sequence():
     log.info("Starting Sequence")
 
-    time.sleep(2)
+    if stop_event.wait(2): return
     log.info("Scheduling adding a Bin for Port 10000")
     GLib.idle_add(add_bin, 10000)  # (1)
 
-    time.sleep(2)
+    if stop_event.wait(2): return
     log.info("Scheduling adding a Bin for Port 10001")
     GLib.idle_add(add_bin, 10001)  # (1)
 
-    time.sleep(2)
+    if stop_event.wait(2): return
     log.info("Scheduling adding a Bin for Port 10002")
     GLib.idle_add(add_bin, 10002)  # (1)
 
@@ -110,4 +112,5 @@ t.start()
 runner = Runner(pipeline)
 runner.run_blocking()
 
+stop_event.set()
 t.join()

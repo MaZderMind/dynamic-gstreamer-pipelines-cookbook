@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import logging
-import time
-from threading import Thread
+from threading import Thread, Event
 
 from tools.application_init import application_init
 
@@ -52,9 +51,12 @@ def add_new_src():
     log.info("Adding testsrc2 done")
 
 
+stop_event = Event()
+
+
 def timed_sequence():
     log.info("Starting Sequence")
-    time.sleep(2)
+    if stop_event.wait(2): return
     GLib.idle_add(add_new_src)  # (1)
     log.info("Sequence ended")
 
@@ -65,4 +67,5 @@ t.start()
 runner = Runner(pipeline)
 runner.run_blocking()
 
+stop_event.set()
 t.join()
