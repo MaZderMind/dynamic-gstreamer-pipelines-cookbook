@@ -100,8 +100,6 @@ def create_bin(port):
 
 
 def add_bin(port):
-    global port_mixpad_map
-
     log.info("Adding RTP-Bin for Port %d to the Pipeline" % port)
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_before" % port)
 
