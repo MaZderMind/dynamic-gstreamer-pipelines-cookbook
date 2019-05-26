@@ -75,6 +75,7 @@ def create_bin(port):
 
 
 def add_bin(port):
+    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_before" % port)
     bin = create_bin(port)
 
     log.info("Adding RTP-Bin for Port %d to the Pipeline" % port)
@@ -83,6 +84,7 @@ def add_bin(port):
     output_element.link_filtered(mixer, caps_audio)
     bin.sync_state_with_parent()  # (10)
     log.info("Added RTP-Bin for Port %d to the Pipeline" % port)
+    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_after" % port)
 
 
 stop_event = Event()
