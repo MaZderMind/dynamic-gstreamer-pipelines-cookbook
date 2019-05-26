@@ -110,15 +110,13 @@ stop_event = Event()
 def timed_sequence():
     log.info("Starting Sequence")
     while True:
-        if stop_event.wait(2): break
+        if stop_event.wait(2): return
         log.info("Schedule Add Source")
         GLib.idle_add(add_new_src)
 
-        if stop_event.wait(2): break
+        if stop_event.wait(2): return
         log.info("Schedule Remove Source")
         GLib.idle_add(remove_src)
-
-    log.info("Sequence ended")
 
 
 t = Thread(target=timed_sequence, name="Sequence")
