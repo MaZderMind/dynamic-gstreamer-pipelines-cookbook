@@ -1,4 +1,4 @@
-# Adding a RTP Network-Source
+# Adding RTP Network-Sources
 → [Sourcecode](02-add-network-source.py)
 
 This Example creates a Pipeline like this:

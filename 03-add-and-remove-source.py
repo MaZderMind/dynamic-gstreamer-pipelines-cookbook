@@ -35,7 +35,7 @@ testsrc1.get_static_pad("src").add_probe(
 mixer.get_static_pad("src").add_probe(
     Gst.PadProbeType.BUFFER, logging_pad_probe, "mixer-output")
 
-testsrc2 = None
+testsrc2 = None  # (2)
 capsfilter2 = None
 mixerpad = None
 
@@ -57,7 +57,7 @@ def add_new_src():
     log.debug(pipeline.add(testsrc2))
 
     log.info("Creating capsfilter")
-    capsfilter2 = Gst.ElementFactory.make("capsfilter", "capsfilter2")
+    capsfilter2 = Gst.ElementFactory.make("capsfilter", "capsfilter2")  # (3)
     capsfilter2.set_property("caps", caps)
 
     log.info("Adding capsfilter")
@@ -78,7 +78,7 @@ def add_new_src():
     log.debug(testsrc2.sync_state_with_parent())
 
     log.info("Adding testsrc2 done")
-    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "adding-testsrc2-after")
+    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "adding-testsrc2-after")  # (4)
 
 
 def remove_src():
@@ -86,7 +86,7 @@ def remove_src():
     log.info("Removing testsrc2")
 
     log.info("Stopping testsrc2")
-    log.debug(testsrc2.set_state(Gst.State.NULL))
+    log.debug(testsrc2.set_state(Gst.State.NULL))  # (5)
 
     log.info("Stopping capsfilter2")
     log.debug(capsfilter2.set_state(Gst.State.NULL))
@@ -98,13 +98,13 @@ def remove_src():
     log.debug(pipeline.remove(capsfilter2))
 
     log.info("Releasing mixerpad")
-    log.debug(mixer.release_request_pad(mixerpad))
+    log.debug(mixer.release_request_pad(mixerpad))  # (6)
 
     log.info("Removing testsrc2 done")
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "removing-testsrc2-after")
 
 
-stop_event = Event()
+stop_event = Event()  # (1)
 
 
 def timed_sequence():
