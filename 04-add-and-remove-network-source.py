@@ -16,18 +16,18 @@ log = logging.getLogger("main")
 
 log.info("building pipeline")
 pipeline = Gst.Pipeline.new()
-caps_audio = Gst.Caps.from_string("audio/x-raw,format=S16LE,rate=48000,channels=2")  # (11)
+caps_audio = Gst.Caps.from_string("audio/x-raw,format=S16LE,rate=48000,channels=2")
 caps_audio_be = Gst.Caps.from_string("audio/x-raw,format=S16BE,rate=48000,channels=2")
 caps_rtp = Gst.Caps.from_string("application/x-rtp,clock-rate=48000,media=audio,encoding-name=L16,channels=2")
 
 testsrc = Gst.ElementFactory.make("audiotestsrc", "testsrc")
-testsrc.set_property("is-live", True)  # (2)
+testsrc.set_property("is-live", True)
 testsrc.set_property("freq", 220)
 testsrc.set_property("volume", 0.5)
 pipeline.add(testsrc)
 
 mixer = Gst.ElementFactory.make("audiomixer")
-mixer.set_property("latency", (rtp_max_jitter_mx * 1_000_000))  # (5)
+mixer.set_property("latency", (rtp_max_jitter_mx * 1_000_000))
 pipeline.add(mixer)
 testsrc.link_filtered(mixer, caps_audio)
 
@@ -45,10 +45,10 @@ mixer.get_static_pad("src").add_probe(
 # udpsrc port=… ! {rtpcaps} ! rtpjitterbuffer latency=… ! rtpL16depay ! {rawcaps_be} ! audioconvert ! {rawcaps} ! …
 def create_bin(port):
     log.info("Creating RTP-Bin for Port %d" % port)
-    rxbin = Gst.Bin.new("rx-bin-%d" % port)  # (8)
+    rxbin = Gst.Bin.new("rx-bin-%d" % port)  # (1)
 
     log.info("Creating udpsrc")
-    udpsrc = Gst.ElementFactory.make("udpsrc")  # (3)
+    udpsrc = Gst.ElementFactory.make("udpsrc")
     log.debug(udpsrc)
     udpsrc.set_property("port", port)
     udpsrc.set_property("caps", caps_rtp)
@@ -60,8 +60,8 @@ def create_bin(port):
     log.debug(udpsrc.get_static_pad("src").add_probe(
         Gst.PadProbeType.BUFFER, logging_pad_probe, "udpsrc-%d-output" % port))
 
-    log.info("Creating jitterbuffer ")
-    jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")  # (4)
+    log.info("Creating jitterbuffer")
+    jitterbuffer = Gst.ElementFactory.make("rtpjitterbuffer")
     log.debug(jitterbuffer)
     jitterbuffer.set_property("latency", rtp_max_jitter_mx)
     jitterbuffer.set_property("drop-on-latency", True)
@@ -73,7 +73,7 @@ def create_bin(port):
     log.debug(udpsrc.link(jitterbuffer))
 
     log.info("Creating depayloader")
-    depayload = Gst.ElementFactory.make("rtpL16depay")  # (6)
+    depayload = Gst.ElementFactory.make("rtpL16depay")
     log.debug(depayload)
 
     log.info("Adding depayloader to bin")
@@ -87,7 +87,7 @@ def create_bin(port):
         Gst.PadProbeType.BUFFER, logging_pad_probe, "depayload-%d-output" % port))
 
     log.info("Creating audioconvert")
-    audioconvert = Gst.ElementFactory.make("audioconvert", "out-%d" % port)  # (7)
+    audioconvert = Gst.ElementFactory.make("audioconvert")
     log.debug(audioconvert)
 
     log.info("Adding audioconvert to bin")
@@ -95,6 +95,17 @@ def create_bin(port):
 
     log.info("Linking depayload to audioconvert")
     log.debug(depayload.link_filtered(audioconvert, caps_audio_be))
+
+    log.info("Selecting Output-Pad")
+    src_pad = audioconvert.get_static_pad("src")
+    log.debug(src_pad)
+
+    log.info("Creating Ghost-Pad")
+    ghost_pad = Gst.GhostPad.new("src", src_pad)
+    log.debug(ghost_pad)
+
+    log.info("Adding Ghost-Pad to Bin")
+    log.debug(rxbin.add_pad(ghost_pad))
 
     return rxbin
 
@@ -104,21 +115,18 @@ def add_bin(port):
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_before" % port)
 
     log.info("Creating Bin")
-    bin = create_bin(port)
+    rxbin = create_bin(port)
     log.info("Created Bin")
-    log.debug(bin)
+    log.debug(rxbin)
 
     log.info("Adding bin to pipeline")
-    log.debug(pipeline.add(bin))
+    log.debug(pipeline.add(rxbin))
 
-    log.info("Selecting Output-Element")
-    output_element = pipeline.get_by_name("out-%d" % port)  # (9)
-
-    log.info("Linking output_element to mixer")
-    output_element.link(mixer)
+    log.info("Linking bin to mixer")
+    rxbin.link(mixer)
 
     log.info("Syncing Bin-State with Parent")
-    log.debug(bin.sync_state_with_parent())  # (10)
+    log.debug(rxbin.sync_state_with_parent())
 
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_after" % port)
     log.info("Added RTP-Bin for Port %d to the Pipeline" % port)
@@ -129,12 +137,16 @@ def remove_bin(port):
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "remove_bin_%u_before" % port)
 
     log.info("Selecting Bin")
-    bin = pipeline.get_by_name("rx-bin-%d" % port)
+    bin = pipeline.get_by_name("rx-bin-%d" % port)  # (3)
     log.debug(bin)
 
     log.info("Selecting Ghost-Pad")
-    ghostpad = bin.srcpads[0]
+    ghostpad = bin.get_static_pad("src")
+    log.debug(ghostpad)
+
+    log.info("Selecting Mixerpad (Peer of Ghost-Pad)")
     mixerpad = ghostpad.get_peer()
+    log.debug(mixerpad)
 
     log.info("Stopping Bin")
     log.debug(bin.set_state(Gst.State.NULL))
@@ -143,7 +155,7 @@ def remove_bin(port):
     log.debug(pipeline.remove(bin))
 
     log.info("Releasing mixerpad")
-    log.debug(mixer.release_request_pad(mixerpad))
+    log.debug(mixer.release_request_pad(mixerpad))  # (5)
 
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "remove_bin_%u_after" % port)
     log.info("Removed RTP-Bin for Port %d to the Pipeline" % port)
@@ -160,12 +172,12 @@ def timed_sequence():
         for i in range(0, num_ports):
             if stop_event.wait(2): return
             log.info("Scheduling add_bin for Port %d", 10000 + i)
-            GLib.idle_add(add_bin, 10000 + i)  # (1)
+            GLib.idle_add(add_bin, 10000 + i)
 
         for i in range(0, num_ports):
             if stop_event.wait(2): return
             log.info("Scheduling remove_bin for Port %d", 10000 + i)
-            GLib.idle_add(remove_bin, 10000 + i)  # (1)
+            GLib.idle_add(remove_bin, 10000 + i)
 
 
 t = Thread(target=timed_sequence, name="Sequence")
