@@ -87,9 +87,11 @@ The most important Lines have been marked as such:
     So with a configured Latency of **20ms** Your Network (including the Network-Stacks on both ends) is allowed to 
     Jitter up to that amount back and forth, without the Receiving-Side starting to drop Packets.
     
-    In my tests I found **30ms** to be a good start for Devices talking across multiple Switches and a Wifi-Access-Point.
-    When all Devices are on a non-crowded GBit Ethernet Link **10ms** should be fine too.
+    In my tests I found **30ms** to be a good start for Devices talking across multiple Switches and a Wifi-Access-Point
+    under Linux. When all Devices are on a non-crowded GBit Ethernet Link **10ms** should be fine too.
     Across the Internet a Value of **200ms** or upwards might be required.
+
+    Under MacOS I needed to go to **100ms** on Wifi. Your mileage may vary.
 
  5. The Audiomixer has, apart from its obvious job of combining Audio-Samples, the task of syncing up incoming Streams
     and only mixing samples that are meant to be played back at the same time. When a least one of the sources linked to
