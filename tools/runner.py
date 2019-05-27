@@ -43,7 +43,7 @@ class Runner(object):
         self.error_callback()
 
     def quit(self):
-        log.warn('quitting mainloop')
+        log.warning('quitting mainloop')
         self.mainloop.quit()
 
     def on_state_change(self, _bus, message):

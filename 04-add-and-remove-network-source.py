@@ -45,7 +45,7 @@ mixer.get_static_pad("src").add_probe(
 # udpsrc port=… ! {rtpcaps} ! rtpjitterbuffer latency=… ! rtpL16depay ! {rawcaps_be} ! audioconvert ! {rawcaps} ! …
 def create_bin(port):
     log.info("Creating RTP-Bin for Port %d" % port)
-    bin = Gst.Bin.new("rx-bin-%d" % port)  # (8)
+    rxbin = Gst.Bin.new("rx-bin-%d" % port)  # (8)
 
     log.info("Creating udpsrc")
     udpsrc = Gst.ElementFactory.make("udpsrc")  # (3)
@@ -54,7 +54,7 @@ def create_bin(port):
     udpsrc.set_property("caps", caps_rtp)
 
     log.info("Adding udpsrc to bin")
-    log.debug(bin.add(udpsrc))
+    log.debug(rxbin.add(udpsrc))
 
     log.info("Registering Pad-Probe after udpsrc")
     log.debug(udpsrc.get_static_pad("src").add_probe(
@@ -67,7 +67,7 @@ def create_bin(port):
     jitterbuffer.set_property("drop-on-latency", True)
 
     log.info("Adding jitterbuffer to bin")
-    log.debug(bin.add(jitterbuffer))
+    log.debug(rxbin.add(jitterbuffer))
 
     log.info("Linking udpsrc to jitterbuffer")
     log.debug(udpsrc.link(jitterbuffer))
@@ -77,7 +77,7 @@ def create_bin(port):
     log.debug(depayload)
 
     log.info("Adding depayloader to bin")
-    log.debug(bin.add(depayload))
+    log.debug(rxbin.add(depayload))
 
     log.info("Linking jitterbuffer to depayloader")
     log.debug(jitterbuffer.link(depayload))
@@ -91,12 +91,12 @@ def create_bin(port):
     log.debug(audioconvert)
 
     log.info("Adding audioconvert to bin")
-    log.debug(bin.add(audioconvert))
+    log.debug(rxbin.add(audioconvert))
 
     log.info("Linking depayload to audioconvert")
     log.debug(depayload.link_filtered(audioconvert, caps_audio_be))
 
-    return bin
+    return rxbin
 
 
 def add_bin(port):
