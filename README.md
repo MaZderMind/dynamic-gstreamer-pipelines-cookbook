@@ -20,6 +20,19 @@ Dynamic Pipelines are a Thing I tried to ignore for as long as possible, but wit
 reproducible Examples for the most common Modifications: Adding and Removing Sinks and Sources and changing Links between
 existing Elements.
 
+## Running the Experiments
+The Experiments require a little Test-Bed to run in, which includes a nice colorful console logger that helps a lot to
+find orientation in the rather long and repetitive log outputs.
+
+To run the Experiments create a virtualenv and install the dependencies in there:
+```
+virtualenv -ppython3 env
+source ./env/bin/activate
+./env/bin/pip install -r requirements.txt
+
+./01-add-source.py
+```
+
 ## Adding a Source
 This Example creates a Pipeline with an `audiotestsrc` and an `audiomixer`. After a while a second `audiotestsrc` is
 created, added to the Pipeline and linked to the `audiomixer`.
