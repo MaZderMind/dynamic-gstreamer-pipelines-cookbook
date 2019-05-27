@@ -6,7 +6,7 @@ and an `autoaudiosink` is created. After 2 seconds, a second `audiotestsrc` is c
 to the Mixer. Another 2 seconds later it is stopped, unlinked and removed again. The process repeats as long as the
 experiment runs.
 
-You should read [01-add-source.md](01-add-source.md) before this, because important Lines that have been explained there
+You should read [01-add-source.md](01-add-source.md) before this, because important Aspects that have been explained there
 are not repeated here.
 
 The most important new Lines have been marked as such:
