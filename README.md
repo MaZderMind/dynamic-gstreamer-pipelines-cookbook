@@ -1,10 +1,10 @@
 # GStreamer Dynamic Pipelines Cookbook
 
-Writing complex, static GStreamer Pipelines, that is Pipelines that are fully described before launcing them, is easy. 
+Writing complex, static GStreamer Pipelines, that is Pipelines that are fully described before launching them, is easy. 
 Ok, not trivially easy but comparably easy. One has to only work with a single State that either works or doesnt 
 (because of various reasons that themselves are sometimes not so easy).
 
-Actually there are no static Piplines - Depending on changing Input, Output or Properties Pipelines can re-negotiate 
+Actually there are no static Pipelines - Depending on changing Input, Output or Properties Pipelines can re-negotiate 
 Caps, Latency and other properties, but we can make our Pipelines quite static and well-known by placing CapsFilter 
 between the Elements to enforce the Caps that we know beforehand and undermine any dynamic negotiation this way.
 Most of this is done for us and happens behind the scene.

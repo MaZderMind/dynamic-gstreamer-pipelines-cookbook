@@ -21,12 +21,12 @@ because we configured it to be a true live-source.
 The most important Lines have been marked as such:
 
  1. We schedule the execution on the GLib Event-Loop by using `Glib.idle_add`. On the Console you can see, that the
-    Sequence runs in its own `Sequence`-Thread but the second testsrc is actually added from the `MainThread`.
+    Sequence runs in its own `Sequence`-Thread but the second Test-Source is actually added from the `MainThread`.
 
     It seems that this exact example also works without this, because some of the Methods are Thread-Safe by
     Documentation (ie. [Bin.add](https://lazka.github.io/pgi-docs/#Gst-1.0/classes/Bin.html#Gst.Bin.add)) and some are
-    by luck (ie [Gobject.Object.set_property](https://lazka.github.io/pgi-docs/#GObject-2.0/classes/Object.html#GObject.Object.set_property)),
-    but not follwing this pattern can lead to unexpected and hard to find issues.
+    by luck (ie [GObject.Object.set_property](https://lazka.github.io/pgi-docs/#GObject-2.0/classes/Object.html#GObject.Object.set_property)),
+    but not following this pattern can lead to unexpected and hard to find issues.
 
     From the console you can also see, that the Pad-Probes are called synchronously from their respective Elements' 
     Streaming-Threads (Shown as `Dummy-[n]`).

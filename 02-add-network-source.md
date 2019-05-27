@@ -44,7 +44,7 @@ gst-launch-1.0 audiotestsrc freq=440 volume=0.5 is-live=true ! \
 
 On the speaker you can now hear both tones being mixed together and played back.
 On the Console you can see the Timestamps of the `udpsrc` starting close the the timestamps currently mixed by
-the mixer, because Elemets of type `udpsrc` are always live.
+the mixer, because Elements of type `udpsrc` are always live.
 
 You now start an stop the RDP Source. The Background-Hum will continue and your added RDP Source will immediately start
 to mix with it again, as soon as you start it. The `rtpjitterbuffer`-Element can detect the loss of the source signal
@@ -58,7 +58,7 @@ The most important Lines have been marked as such:
     It seems that this exact example also works without this, because some of the Methods are Thread-Safe by
     Documentation (ie. [Bin.add](https://lazka.github.io/pgi-docs/#Gst-1.0/classes/Bin.html#Gst.Bin.add)) and some are
     by luck (ie [Gobject.Object.set_property](https://lazka.github.io/pgi-docs/#GObject-2.0/classes/Object.html#GObject.Object.set_property)),
-    but not follwing this pattern can lead to unexpected and hard to find issues.
+    but not following this pattern can lead to unexpected and hard to find issues.
 
     From the console you can also see, that the Pad-Probes are called synchronously from their respective Elements' 
     Streaming-Threads (Shown as `Dummy-[n]`).
@@ -73,7 +73,7 @@ The most important Lines have been marked as such:
     Running-Time of the Source-Pipeline and stamps the generated Buffers into it. This timestamp is encoded into the 
     RTP-Packets and given to the Network-Stack.
  
-    The Network-Stack on both sided, Switches, Routers, WLAN APs and other Network Equipment all have Buffers which delay 
+    The Network-Stack on both sided, Switches, Routers, WLan APs and other Network Equipment all have Buffers which delay 
     our RTP Packets. Furthermore the exact amount of Delay is different for each and every RTP Packet.
     
     To circumvent this Jitter, an `rtpjitterbuffer` is added to the Pipeline and configured with the maximal allowed Jitter.
@@ -88,7 +88,7 @@ The most important Lines have been marked as such:
     Jitter up to that amount back and forth, without the Receiving-Side starting to drop Packets.
     
     In my tests I found **30ms** to be a good start for Devices talking across multiple Switches and a Wifi-Access-Point.
-    When all Devides are on a non-crowded Gigabit Ethernet Link **10ms** should be fine too.
+    When all Devices are on a non-crowded GBit Ethernet Link **10ms** should be fine too.
     Across the Internet a Value of **200ms** or upwards might be required.
 
  5. The Audiomixer has, apart from its obvious job of combining Audio-Samples, the task of syncing up incoming Streams
@@ -100,7 +100,7 @@ The most important Lines have been marked as such:
     be waiting in the Jitter-Buffer. When going to `PLAYING` the Audiomixer queries all its sources for their latency and
     configured its own latency accordingly. In a dynamic Pipeline like this, the Source of Latency is not yet present when
     the Pipeline initially goes to `PLAYING`, so we need to configure the Audio-Mixers latency beforehand to the same or
-    a higher value, then we configired the `rtpjitterbuffer` to buffer our RTP-Packets.
+    a higher value, then we configured the `rtpjitterbuffer` to buffer our RTP-Packets.
  
  6. GStreamer comes with a metric ton of [RTP de/payloader elements](https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-good-plugins/html/gst-plugins-good-plugins-plugin-rtp.html).
     This example chose L16 (specified in [RFC 3551](https://tools.ietf.org/html/rfc3551)) which encodes Audio as Uncompressed
@@ -122,14 +122,14 @@ The most important Lines have been marked as such:
  9. When Elements from Inside a Bin are linked with Elements outside the Bin or in another Bin, so called Ghost-Pads are
     created at the Boundary of the Bin. These Ghost-Pads can be actively managed by the Bin (for Details see the 
     [Documentation on Ghost Pads](https://gstreamer.freedesktop.org/documentation/application-development/basics/pads.html?gi-language=c#ghost-pads))
-    but Ghost Pads are also automaticly created, when a Cross-Bin-Link is performed, like in this example.
+    but Ghost Pads are also automatically created, when a Cross-Bin-Link is performed, like in this example.
 
 10. The Bin does not automatically take over its parent state. Also, not all Elements in a Pipeline have to have the
     same state. In this case the new Bin and all its Elements starts in `NULL` state and is added as such to the Pipeline.
-    Once it is added, the Bins state is synced to the pipeline which in turn propagage this State-Change to all its Child-
+    Once it is added, the Bins state is synced to the pipeline which in turn propagate this State-Change to all its Child-
     Elements.
 
-11. At some points in the Pipeline multiple Mediatypes can be processed by both Elements participating being linked together
+11. At some points in the Pipeline multiple Media-Types can be processed by both Elements participating being linked together
     and especially in a dynamic pipeline not all requirements to these media-types are known at pipeline construction.
     For example the `audiotestsrc` and the `audiomixer` both share a wide range of Audio-Formats, Sample-Rates and
     Bit-Depths that both can support. Linking them might produce a result, that works initially, but fails when the 
