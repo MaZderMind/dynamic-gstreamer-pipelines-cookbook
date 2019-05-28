@@ -42,7 +42,7 @@ created, added to the Pipeline and linked to the `audiomixer`.
 
 ## Adding RTP-Sources
 As a more realistic example of adding Sources to a playing Pipeline, this Example creates a Pipeline with an
-`audiotestsrc` and an `audiomixer`. After a while, a Bin (a Cluster of Elements) which receive and decode Audio coming
+`audiotestsrc` and an `audiomixer`. After a while, a Bin (a Cluster of Elements) which receives and decodes Audio coming
 from the Network via RTP is created, added to the Pipeline and linked to the `audiomixer`. After 4 and 6 seconds additional
 Bins of this kind are created and also linked.
 
@@ -55,5 +55,21 @@ and an `autoaudiosink` is created. After 2 seconds, a second `audiotestsrc` is c
 to the Mixer. Another 2 seconds later it is stopped, unlinked and removed again. The process repeats as long as the
 experiment runs.
 
+You should read [01-add-source.md](01-add-source.md) before this, because important Lines that have been explained there
+are not repeated here.
+
  - [Recipe](03-add-and-remove-source.md)
  - [Sourcecode](03-add-and-remove-source.py)
+
+## Adding and Removing RTP-Sources
+As a more realistic example of adding and removing Sources to a playing Pipeline, this Example creates a Pipeline with an
+`audiotestsrc` and an `audiomixer`. After a while, a Bin (a Cluster of Elements) which receives and decodes Audio coming
+from the Network via RTP is created, added to the Pipeline and linked to the `audiomixer`. After 4 and 6 seconds additional
+Bins of this kind are created and also linked. Then, again with 2 Seconds in between, the Source-Bins are removes again,
+before thw whole process starts over again.
+
+You should read [02-add-network-source.md](02-add-network-source.md) and [03-add-and-remove-source.md](03-add-and-remove-source.md)
+before this, because important Aspects that have been explained there are not repeated here.
+
+ - [Recipe](04-add-and-remove-network-source.md)
+ - [Sourcecode](04-add-and-remove-network-source.py)
