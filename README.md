@@ -73,3 +73,6 @@ before this, because important Aspects that have been explained there are not re
 
  - [Recipe](04-add-and-remove-network-source.md)
  - [Sourcecode](04-add-and-remove-network-source.py)
+
+## Help, my $Thing does not work
+Lalafoo Mailinglist

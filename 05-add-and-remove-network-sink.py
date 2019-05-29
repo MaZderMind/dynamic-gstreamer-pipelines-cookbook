@@ -22,13 +22,10 @@ testsrc.set_property("is-live", True)
 testsrc.set_property("freq", 220)
 pipeline.add(testsrc)
 
-tee = Gst.ElementFactory.make("tee")
+tee = Gst.ElementFactory.make("tee")  # (1)
+tee.set_property("allow-not-linked", True)
 pipeline.add(tee)
 testsrc.link_filtered(tee, caps_audio)
-
-sink = Gst.ElementFactory.make("autoaudiosink")
-pipeline.add(sink)
-tee.link(sink)
 
 
 # audioconvert ! {rawcaps_be} ! rtpL16depay ! udpsink port=…
@@ -38,7 +35,7 @@ def create_bin(port):
     log.debug(txbin)
 
     log.info("Creating queue")
-    queue = Gst.ElementFactory.make("queue")
+    queue = Gst.ElementFactory.make("queue")  # (1)
     log.debug(queue)
 
     log.info("Adding queue to bin")
@@ -67,7 +64,7 @@ def create_bin(port):
     log.info("Creating udpsink")
     udpsink = Gst.ElementFactory.make("udpsink")
     log.debug(payloader)
-    udpsink.set_property("host", "192.168.178.21")
+    udpsink.set_property("host", "127.0.0.1")  # (3)
     udpsink.set_property("port", port)
 
     log.info("Adding udpsink to bin")
@@ -150,12 +147,12 @@ def timed_sequence():
     num_ports = 3
     while True:
         for i in range(0, num_ports):
-            if stop_event.wait(2): return
+            if stop_event.wait(0.2): return
             log.info("Scheduling add_bin for Port %d", 15000 + i)
             GLib.idle_add(add_bin, 15000 + i)
 
         for i in range(0, num_ports):
-            if stop_event.wait(2): return
+            if stop_event.wait(0.2): return
             log.info("Scheduling remove_bin for Port %d", 15000 + i)
             GLib.idle_add(remove_bin, 15000 + i)
 
