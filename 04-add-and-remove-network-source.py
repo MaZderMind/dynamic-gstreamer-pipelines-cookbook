@@ -137,11 +137,11 @@ def remove_bin(port):
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "remove_bin_%u_before" % port)
 
     log.info("Selecting Bin")
-    bin = pipeline.get_by_name("rx-bin-%d" % port)  # (1)
-    log.debug(bin)
+    rxbin = pipeline.get_by_name("rx-bin-%d" % port)  # (1)
+    log.debug(rxbin)
 
     log.info("Selecting Ghost-Pad")
-    ghostpad = bin.get_static_pad("src")
+    ghostpad = rxbin.get_static_pad("src")
     log.debug(ghostpad)
 
     log.info("Selecting Mixerpad (Peer of Ghost-Pad)")
@@ -149,10 +149,10 @@ def remove_bin(port):
     log.debug(mixerpad)
 
     log.info("Stopping Bin")
-    log.debug(bin.set_state(Gst.State.NULL))  # (5) ff.
+    log.debug(rxbin.set_state(Gst.State.NULL))  # (5) ff.
 
     log.info("Removing Bin from Pipeline")
-    log.debug(pipeline.remove(bin))
+    log.debug(pipeline.remove(rxbin))
 
     log.info("Releasing mixerpad")
     log.debug(mixer.release_request_pad(mixerpad))
