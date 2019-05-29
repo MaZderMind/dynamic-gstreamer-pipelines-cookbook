@@ -5,6 +5,16 @@ from the Network via RTP is created, added to the Pipeline and linked to the `au
 Bins of this kind are created and also linked. Then, again with 2 Seconds in between, the Source-Bins are removes again,
 before thw whole process starts over again.
 
+Network-Sources can, for example. look like the following Pipeline. If you want, you can start such Pipelines on different
+Computers across the Network, just adjust the destination IP-Address. 
+```
+gst-launch-1.0 audiotestsrc freq=220 is-live=true ! \
+  audio/x-raw,format=S16BE,rate=48000,channels=2 ! \
+  rtpL16pay ! \
+  application/x-rtp,clock-rate=48000,media=audio,encoding-name=L16,channels=2 ! \
+  udpsink host=127.0.0.1 port=10000
+```
+
 You should read [Adding RTP Network-Sources](02-add-network-source.md) and [Adding and Removing Sources](03-add-and-remove-source.md)
 before this, because important Aspects that have been explained there are not repeated here.
 
