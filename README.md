@@ -50,12 +50,12 @@ Bins of this kind are created and also linked.
  - [Sourcecode](02-add-network-source.py)
 
 ## Adding and Removing Sources
-This example is based upon [01-add-source.py](01-add-source.py). A Pipeline with a live `audiotestsrc`, an `audiomixer`
+This example is based upon [Adding a Source](01-add-source.py). A Pipeline with a live `audiotestsrc`, an `audiomixer`
 and an `autoaudiosink` is created. After 2 seconds, a second `audiotestsrc` is created, added to the pipeline and linked
 to the Mixer. Another 2 seconds later it is stopped, unlinked and removed again. The process repeats as long as the
 experiment runs.
 
-You should read [01-add-source.md](01-add-source.md) before this, because important Lines that have been explained there
+You should read [Adding a Source](01-add-source.md) before this, because important Lines that have been explained there
 are not repeated here.
 
  - [Recipe](03-add-and-remove-source.md)
@@ -68,7 +68,7 @@ from the Network via RTP is created, added to the Pipeline and linked to the `au
 Bins of this kind are created and also linked. Then, again with 2 Seconds in between, the Source-Bins are removes again,
 before thw whole process starts over again.
 
-You should read [02-add-network-source.md](02-add-network-source.md) and [03-add-and-remove-source.md](03-add-and-remove-source.md)
+You should read [Adding RTP-Sources](02-add-network-source.md) and [Adding and Removing Sources](03-add-and-remove-source.md)
 before this, because important Aspects that have been explained there are not repeated here.
 
  - [Recipe](04-add-and-remove-network-source.md)
