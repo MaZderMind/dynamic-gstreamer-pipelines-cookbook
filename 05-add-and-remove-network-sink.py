@@ -27,6 +27,12 @@ tee.set_property("allow-not-linked", True)
 pipeline.add(tee)
 testsrc.link_filtered(tee, caps_audio)
 
+playback_internal = False  # (2)
+if playback_internal:
+    sink = Gst.ElementFactory.make("autoaudiosink")
+    pipeline.add(sink)
+    tee.link(sink)
+
 
 # audioconvert ! {rawcaps_be} ! rtpL16depay ! udpsink port=…
 def create_bin(port):
@@ -35,7 +41,7 @@ def create_bin(port):
     log.debug(txbin)
 
     log.info("Creating queue")
-    queue = Gst.ElementFactory.make("queue")  # (1)
+    queue = Gst.ElementFactory.make("queue")  # (3)
     log.debug(queue)
 
     log.info("Adding queue to bin")
@@ -64,7 +70,7 @@ def create_bin(port):
     log.info("Creating udpsink")
     udpsink = Gst.ElementFactory.make("udpsink")
     log.debug(payloader)
-    udpsink.set_property("host", "127.0.0.1")  # (3)
+    udpsink.set_property("host", "127.0.0.1")  # (4)
     udpsink.set_property("port", port)
 
     log.info("Adding udpsink to bin")
@@ -99,11 +105,11 @@ def add_bin(port):
     log.info("Adding bin to pipeline")
     log.debug(pipeline.add(txbin))
 
-    log.info("Linking bin to mixer")
-    tee.link(txbin)
-
     log.info("Syncing Bin-State with Parent")
     log.debug(txbin.sync_state_with_parent())
+
+    log.info("Linking bin to mixer")
+    tee.link(txbin)
 
     Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "add_bin_%u_after" % port)
     log.info("Added RTP-Bin for Port %d to the Pipeline" % port)
@@ -125,17 +131,23 @@ def remove_bin(port):
     teepad = ghostpad.get_peer()
     log.debug(teepad)
 
-    log.info("Stopping Bin")
-    log.debug(txbin.set_state(Gst.State.NULL))
+    def blocking_pad_probe(pad, info):
+        log.info("Stopping Bin")
+        log.debug(txbin.set_state(Gst.State.NULL))
 
-    log.info("Removing Bin from Pipeline")
-    log.debug(pipeline.remove(txbin))
+        log.info("Removing Bin from Pipeline")
+        log.debug(pipeline.remove(txbin))
 
-    log.info("Releasing Tee-Pad")
-    log.debug(tee.release_request_pad(teepad))
+        log.info("Releasing Tee-Pad")
+        log.debug(tee.release_request_pad(teepad))
 
-    Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "remove_bin_%u_after" % port)
-    log.info("Removed RTP-Bin for Port %d to the Pipeline" % port)
+        Gst.debug_bin_to_dot_file_with_ts(pipeline, Gst.DebugGraphDetails.ALL, "remove_bin_%u_after" % port)
+        log.info("Removed RTP-Bin for Port %d to the Pipeline" % port)
+
+        return Gst.PadProbeReturn.REMOVE
+
+    log.info("Configuring Blocking Probe on teepad")
+    teepad.add_probe(Gst.PadProbeType.BLOCK, blocking_pad_probe)  # (5)
 
 
 stop_event = Event()
@@ -145,14 +157,15 @@ def timed_sequence():
     log.info("Starting Sequence")
 
     num_ports = 3
+    timeout = 0.2
     while True:
         for i in range(0, num_ports):
-            if stop_event.wait(0.2): return
+            if stop_event.wait(timeout): return
             log.info("Scheduling add_bin for Port %d", 15000 + i)
             GLib.idle_add(add_bin, 15000 + i)
 
         for i in range(0, num_ports):
-            if stop_event.wait(0.2): return
+            if stop_event.wait(timeout): return
             log.info("Scheduling remove_bin for Port %d", 15000 + i)
             GLib.idle_add(remove_bin, 15000 + i)
 

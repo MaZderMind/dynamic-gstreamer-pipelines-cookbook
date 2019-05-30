@@ -23,5 +23,8 @@ Aspects that have been explained there are not repeated here.
 This Experiment is very similar to [Adding and Removing RTP-Sources](04-add-and-remove-network-source.md), but the most
 important differences are highlighted as such: 
 
- 1. tee and requres link
- 2. queue
+ 1. tee & allow-not-linked
+ 2. optional internal playback sink
+ 3. queue after tee
+ 4. network host & port
+ 5. blocking pad probe 
